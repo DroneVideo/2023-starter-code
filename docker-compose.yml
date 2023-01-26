@@ -20,6 +20,7 @@ services:
     container_name: sim
     hostname: sim
     image: jinensetpal/auav_f22:sim
+    ipc: host
     command: terminator --geometry=800x500+800+0 -e ". /opt/ros/foxy/setup.sh && colcon build --symlink-install --event-handler console_direct+ && . ./install/setup.sh && ros2 launch auav_f22_gazebo sample.launch.py; read -p 'press enter'"
     build:
       context: sim
@@ -123,6 +124,7 @@ services:
         - donotstart
     container_name: grader
     hostname: grader
+    ipc: host
     image: jinensetpal/auav_f22:grader
     #command: bash -c ". ~/ws/install/setup.sh && ros2 launch auav_f22 sample.launch.py"
     command: terminator --geometry=800x500+0+0 -e ". ~/px4_ros_com_ros2/install/setup.sh && colcon build --symlink-install --event-handler console_direct+ && . ./install/setup.sh && ros2 launch auav_f22_grader grade.launch.py; read -p 'press enter'"
