@@ -74,6 +74,7 @@ services:
     container_name: px4
     hostname: px4
     image: jinensetpal/auav_f22:px4
+    ipc: host
     command: terminator --geometry=800x500+0+500 -e "px4_build.sh && px4_start.sh; read -p 'press enter to close'"
     build:
       context: .
@@ -102,6 +103,7 @@ services:
     container_name: onboard
     hostname: onboard
     image: jinensetpal/auav_f22:onboard
+    ipc: host
     #command: bash -c ". ~/ws/install/setup.sh && ros2 launch auav_f22 sample.launch.py"
     command: terminator --geometry=800x500+0+0 -e ". ~/px4_ros_com_ros2/install/setup.sh && colcon build --symlink-install --event-handler console_direct+ && . ./install/setup.sh && ros2 launch auav_f22 sample.launch.py; read -p 'press enter'"
     build:
