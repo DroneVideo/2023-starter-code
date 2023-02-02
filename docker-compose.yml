@@ -18,6 +18,7 @@ services:
   # gazebo ignition (simulator)
   sim:
     container_name: sim
+    platform: 'linux/amd64'
     hostname: sim
     image: jinensetpal/auav_f22:sim
     ipc: host
@@ -54,6 +55,7 @@ services:
   gcs:
     container_name: gcs
     hostname: gcs
+    platform: 'linux/amd64'
     image: jinensetpal/auav_f22:gcs
     # run qgc hiding output
     command: bash -c "./QGroundControl.AppImage 2> /dev/null"
@@ -75,6 +77,7 @@ services:
     container_name: px4
     hostname: px4
     image: jinensetpal/auav_f22:px4
+    platform: 'linux/amd64'
     ipc: host
     command: terminator --geometry=800x500+0+500 -e "px4_build.sh && px4_start.sh; read -p 'press enter to close'"
     build:
@@ -104,6 +107,7 @@ services:
     container_name: onboard
     hostname: onboard
     image: jinensetpal/auav_f22:onboard
+    platform: 'linux/amd64'
     ipc: host
     #command: bash -c ". ~/ws/install/setup.sh && ros2 launch auav_f22 sample.launch.py"
     command: terminator --geometry=800x500+0+0 -e ". ~/px4_ros_com_ros2/install/setup.sh && colcon build --symlink-install --event-handler console_direct+ && . ./install/setup.sh && ros2 launch auav_f22 sample.launch.py; read -p 'press enter'"
@@ -124,6 +128,7 @@ services:
         - donotstart
     container_name: grader
     hostname: grader
+    platform: 'linux/amd64'
     ipc: host
     image: jinensetpal/auav_f22:grader
     #command: bash -c ". ~/ws/install/setup.sh && ros2 launch auav_f22 sample.launch.py"
