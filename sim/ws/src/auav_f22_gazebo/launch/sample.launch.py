@@ -30,7 +30,8 @@ def generate_launch_description():
             '/rgbd_camera/depth_image@sensor_msgs/msg/Image@ignition.msgs.Image',
             '/rgbd_camera/points@sensor_msgs/msg/PointCloud2@ignition.msgs.PointCloudPacked',
             '/cmd_vel@geometry_msgs/msg/Twist@ignition.msgs.Twist',
-            '/odom@nav_msgs/msg/Odometry@ignition.msgs.Odometry'
+            '/odom@nav_msgs/msg/Odometry@ignition.msgs.Odometry',
+            '/world/trial_1_world/dynamic_pose/info@tf2_msgs/msg/TFMessage@ignition.msgs.Pose_V'
         ],
         output='screen'
     )

@@ -5,15 +5,15 @@ from nav_msgs.msg import Odometry
 from std_msgs.msg import String
 from std_msgs.msg import Float32, Bool
 from px4_msgs.msg import VehicleOdometry
+from tf2_msgs.msg import TFMessage
 import numpy as np
 
 class RoverSubscriber(Node):
 
     def __init__(self):
         super().__init__('rover_subscriber')
-        self.rover_subscription = self.create_subscription(Odometry, 'odom', self.rover_callback, 10)
+        self.rover_subscription = self.create_subscription(TFMessage, '/world/trial_1_world/dynamic_pose/info', self.rover_callback, 10)
         self.score_publisher = self.create_publisher(Float32, 'score', 10)
-        self.drone_subscription = self.create_subscription(VehicleOdometry, 'VehicleOdometry_PubSubTopic', self.drone_callback, 10)
 
         self.rover_position = None
         self.drone_position = None
@@ -22,15 +22,8 @@ class RoverSubscriber(Node):
 
 
     def rover_callback(self, odom):
-        self.rover_position = [odom.pose.pose.position.x, odom.pose.pose.position.y, odom.pose.pose.position.z]
-
-
-        if self.drone_position is None:
-            return
-        
-        if self.drone_position[2] is None:
-            return
-
+        self.rover_position = [odom.transforms[0].transform.translation.x, odom.transforms[0].transform.translation.y, odom.transforms[0].transform.translation.z]
+        self.drone_position = [odom.transforms[2].transform.translation.x, odom.transforms[2].transform.translation.y, odom.transforms[2].transform.translation.z]
 
         distance = np.linalg.norm(np.array([
             self.rover_position[0] - self.drone_position[0],
@@ -44,12 +37,7 @@ class RoverSubscriber(Node):
         self.score = self.sum/self.samples
         self.get_logger().info('distance: {}, inst score: {}, sum: {} samples: {}, score: {}'.format(distance, inst_score, self.sum, self.samples, self.score))
         self.score_publisher.publish(Float32(data=self.score))
-
         
-
-    def drone_callback(self, odom):
-        self.drone_position = [odom.x, odom.y, odom.z]
-
 
 def main(args=None):
     rclpy.init(args=args)
