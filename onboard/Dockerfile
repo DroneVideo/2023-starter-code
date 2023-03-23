@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 	&& apt-get clean
 
 # openvino install
-RUN pip3 install openvino-dev[pytorch]==2021.4.2 pyros-genmsg
+RUN pip3 install numpy --upgrade && pip3 install torch torchvision pyros-genmsg gymnasium
 
 # setup user
 RUN adduser --disabled-password --gecos '' docker \

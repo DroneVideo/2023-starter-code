@@ -32,7 +32,7 @@ services:
       - PX4_HOME_LON=-86.93289541090424
       - PX4_HOME_ALT=185
       # simulation speed, increase to run faster than real time
-      - PX4_SIM_SPEED_FACTOR=1.0
+      - PX4_SIM_SPEED_FACTOR=2.0
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:ro
       - ignition_config:/home/docker/.ignition
