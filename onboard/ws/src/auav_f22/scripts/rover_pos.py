@@ -35,8 +35,8 @@ class RoverSubscriber(Node):
         self.sum += inst_score
         self.samples += 1
         self.score = self.sum/self.samples
-        self.get_logger().info('distance: {}, inst score: {}, sum: {} samples: {}, score: {}'.format(distance, inst_score, self.sum, self.samples, self.score))
-        self.score_publisher.publish(Float32(data=self.score))
+        #self.get_logger().info('distance: {}, inst score: {}, sum: {} samples: {}, score: {}'.format(distance, inst_score, self.sum, self.samples, self.score))
+        self.score_publisher.publish(Float32(data=distance))
         
 
 def main(args=None):

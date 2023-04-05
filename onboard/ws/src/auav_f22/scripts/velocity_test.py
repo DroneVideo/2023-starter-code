@@ -12,8 +12,9 @@ from px4_msgs.msg import OffboardControlMode
 from px4_msgs.msg import TrajectorySetpoint
 from px4_msgs.msg import VehicleCommand
 from px4_msgs.msg import VehicleControlMode
+from px4_msgs.msg import Timesync
 
-from std_msgs.msg import Float32MultiArray
+from std_msgs.msg import Float32MultiArray, Float32
 
 
 class OffboardControl(Node):
@@ -29,10 +30,19 @@ class OffboardControl(Node):
         self.speed_subscriber = self.create_subscription(Float32MultiArray, '/speed', self.speed_change, 10)
         self.speed = [0.0, 0.0, 0.0, 0.0]
 
+        self.timestamp = 0
+        self.timestamp_sub_ = self.create_subscription(Timesync, '/Timesync_PubSubTopic', self.set_timestamp, 10)
+
+        self.arm_sub = self.create_subscription(Float32, '/arm', self.arm_callback, 10)
+        self.disarm_sub = self.create_subscription(Float32, '/disarm', self.disarm_callback, 10)
+
         self.offboard_setpoint_counter_ = 0
 
         timer_period = 0.1  # 100 milliseconds
         self.timer_ = self.create_timer(timer_period, self.timer_callback)
+
+    def set_timestamp(self, msg):
+        self.timestamp = msg.timestamp
 
     def timer_callback(self):
         if (self.offboard_setpoint_counter_ == 10):
@@ -59,6 +69,12 @@ class OffboardControl(Node):
         self.publish_vehicle_command(VehicleCommand.VEHICLE_CMD_COMPONENT_ARM_DISARM, 0.0)
         self.get_logger().info("Disarm command send")
 
+    def arm_callback(self, msg):
+        self.arm()
+
+    def disarm_callback(self, msg):
+        self.disarm()
+
     '''
 	Publish the offboard control mode.
 	For this example, only position and altitude controls are active.
@@ -66,12 +82,12 @@ class OffboardControl(Node):
 
     def publish_offboard_control_mode(self):
         msg = OffboardControlMode()
-        msg.position = False
-        msg.velocity = True
+        msg.position = True
+        msg.velocity = False
         msg.acceleration = False
         msg.attitude = False
         msg.body_rate = False
-        msg.timestamp = int(Clock().now().nanoseconds / 1000) # time in microseconds
+        msg.timestamp = self.timestamp #int(Clock().now().nanoseconds / 1000) # time in microseconds
         self.offboard_control_mode_publisher_.publish(msg)
 
     '''
@@ -82,13 +98,11 @@ class OffboardControl(Node):
 
     def publish_trajectory_setpoint(self):
         msg = TrajectorySetpoint()
-        msg.vx, msg.vy, msg.vz = (self.speed[0], self.speed[1], self.speed[2])
-        msg.yaw = float('nan')
-        msg.yawspeed = self.speed[3]
-        msg.x, msg.y, msg.z = (float('nan'), float('nan'), float('nan'))
+        msg.yaw = self.speed[3]
+        msg.x, msg.y, msg.z = (self.speed[0], self.speed[1], -self.speed[2])
         #msg.vx, msg.vy, msg.vz = (None, None, None)
         #msg.thrust = [1.0, 1.0, -1.0]
-        msg.timestamp = int(Clock().now().nanoseconds / 1000) # time in microseconds
+        msg.timestamp = self.timestamp #int(Clock().now().nanoseconds / 1000) # time in microseconds
         self.trajectory_setpoint_publisher_.publish(msg)
 
     '''
@@ -107,7 +121,7 @@ class OffboardControl(Node):
         msg.source_system = 1  # system sending the command
         msg.source_component = 1  # component sending the command
         msg.from_external = True
-        msg.timestamp = int(Clock().now().nanoseconds / 1000) # time in microseconds
+        msg.timestamp = self.timestamp #int(Clock().now().nanoseconds / 1000) # time in microseconds
         self.vehicle_command_publisher_.publish(msg)
 
     def speed_change(self, msg):

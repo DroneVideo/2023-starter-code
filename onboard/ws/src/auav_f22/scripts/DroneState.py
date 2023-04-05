@@ -18,7 +18,7 @@ class DroneState(Node):
 
     def camera_callback(self, msg):
         data = msg.data
-        self.camera_data = np.reshape(data, (640, 480, 4))
+        self.camera_data = data
 
     def pos_callback(self, msg):
         self.pos_data = np.array([msg.x, msg.y, msg.z, msg.q, msg.vx, msg.vy, msg.vz])
