@@ -40,10 +40,10 @@ class Environment(Node, gym.Env):
         self.camera_subscription = self.create_subscription(Image, '/rgbd_camera/depth_image', self.camera_callback, 10)
 
         self.action_space = Box(low=np.array([-10.0, -10.0, 0.1, -3.14], dtype=np.float32), high=np.array([10.0, 10.0, 10.0, 3.14], dtype=np.float32), dtype=np.float32)
-        self.observation_space = Box(low=np.full((3,640,480), 0, dtype=np.float32), high=np.full((3,640,480), 1, dtype=np.float32), dtype=np.float32)
+        self.observation_space = Box(low=np.full((3,64,64), 0, dtype=np.float32), high=np.full((3,64,64), 1, dtype=np.float32), dtype=np.float32)
         
     def _get_obs(self):
-        new_arr = np.reshape(np.array(np.array(self.camera_data) / 255.0, dtype=np.float32), (640, 480, 4))[:,:,:3].reshape(3, 640, 480)
+        new_arr = np.reshape(np.array(np.array(self.camera_data) / 255.0, dtype=np.float32)[:64*64*3], (3, 64, 64)) #[:,:,:3].reshape(3, 640, 480)
         print(new_arr.shape)
         return new_arr
 
@@ -102,7 +102,7 @@ class Environment(Node, gym.Env):
         observation = self._get_obs()
         reward = np.abs(self.score - 1.0)
         terminated = np.abs(self.score - 1.0) < 0.5
-        truncated = self.score > 5.0
+        truncated = self.score > 2.5
         info = {}
 
         return observation, reward, terminated, truncated, info
@@ -137,7 +137,7 @@ def main(args=None):
     print("Registered environment")
 
 
-    config = DreamerConfig().training(gamma=0.9, lr=0.01).framework(framework='torch')
+    config = DreamerConfig().training(gamma=0.9, lr=0.01).resources(num_gpus=1).framework(framework='torch')
     algo = config.build(env="sim_env") 
     print("Configured model")
 

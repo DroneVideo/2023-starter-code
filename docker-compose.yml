@@ -114,6 +114,14 @@ services:
     networks:
       app_net:
         ipv4_address: 172.16.238.12
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
 
   # grader
   grader:
