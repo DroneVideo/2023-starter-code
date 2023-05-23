@@ -19,6 +19,7 @@ services:
   sim:
     container_name: sim
     hostname: sim
+    runtime: nvidia
     image: jinensetpal/auav_f22:sim
     command: terminator --geometry=800x500+800+0 -e ". /opt/ros/foxy/setup.sh && colcon build --symlink-install --event-handler console_direct+ && . ./install/setup.sh && ros2 launch auav_f22_gazebo sample.launch.py; read -p 'press enter'"
     build:
@@ -33,6 +34,8 @@ services:
       - PX4_HOME_ALT=185
       # simulation speed, increase to run faster than real time
       - PX4_SIM_SPEED_FACTOR=2.0
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:ro
       - ignition_config:/home/docker/.ignition
@@ -101,6 +104,7 @@ services:
   onboard:
     container_name: onboard
     hostname: onboard
+    runtime: nvidia
     image: jinensetpal/auav_f22:onboard
     #command: bash -c ". ~/ws/install/setup.sh && ros2 launch auav_f22 sample.launch.py"
     command: terminator --geometry=800x500+0+0 -e ". ~/px4_ros_com_ros2/install/setup.sh && colcon build --symlink-install --event-handler console_direct+ && . ./install/setup.sh && ros2 launch auav_f22 sample.launch.py; read -p 'press enter'"
@@ -108,6 +112,8 @@ services:
       context: onboard
     environment:
       - DISPLAY=${DISPLAY}
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:ro
       - $PWD/onboard/ws:/home/docker/ws:rw

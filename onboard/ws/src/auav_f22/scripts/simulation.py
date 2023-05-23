@@ -40,10 +40,10 @@ class Environment(Node, gym.Env):
         self.camera_subscription = self.create_subscription(Image, '/rgbd_camera/depth_image', self.camera_callback, 10)
 
         self.action_space = Box(low=np.array([-10.0, -10.0, 0.1, -3.14], dtype=np.float32), high=np.array([10.0, 10.0, 10.0, 3.14], dtype=np.float32), dtype=np.float32)
-        self.observation_space = Box(low=np.full((3,64,64), 0, dtype=np.float32), high=np.full((3,64,64), 1, dtype=np.float32), dtype=np.float32)
+        self.observation_space = Box(low=np.full((3,640,480), 0, dtype=np.float32), high=np.full((3,640,480), 1, dtype=np.float32), dtype=np.float32)
         
     def _get_obs(self):
-        new_arr = np.reshape(np.array(np.array(self.camera_data) / 255.0, dtype=np.float32)[:64*64*3], (3, 64, 64)) #[:,:,:3].reshape(3, 640, 480)
+        new_arr = np.reshape(np.array(np.array(self.camera_data) / 255.0, dtype=np.float32), (640,480,4))[:,:,:3].reshape(3, 640, 480)
         print(new_arr.shape)
         return new_arr
 
@@ -131,7 +131,7 @@ def set_model(config):
 
 def main(args=None):
     rclpy.init(args=args)
-    ray.init()
+    ray.init(num_gpus=1)
 
     register_env("sim_env", set_model)
     print("Registered environment")
